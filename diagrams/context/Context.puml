@@ -1,0 +1,23 @@
+@startuml
+title "Умный дом" диаграмма контекста
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "Пользователь системы умного дома")
+System(SmartHome, "SmartHome System", "Система умного дома")
+
+System_Ext(heater, "Обогреватель", "Устройство для обогрева помещения")
+System_Ext(heat_sensor, "Датчик тепла", "Устройство для измерения температуры")
+
+Rel(user, SmartHome, "Управляет устройствами")
+Rel(SmartHome, user, "Отправляет данные о состоянии устройств")
+
+Rel(SmartHome, heater, "Получает команды на включение/выключение, установку температуры")
+
+
+Rel(SmartHome, heat_sensor, "Получает команды на включение/выключение")
+Rel(heat_sensor, SmartHome, "Отправляет данные о температуре")
+
+@enduml
