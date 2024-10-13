@@ -23,3 +23,6 @@ ER-диаграмма
 ## Подзадание 1.4: Создание и документирование API
 API сервиса сценариев
 [device_scenarios_service_openapi.yaml](device_scenarios_service_openapi.yaml)
+
+Async API сервиса сценариев (взаимодействие с MQTT брокером)
+[device_scenarios_service_asyncapi.yaml](device_scenarios_service_asyncapi.yaml)
