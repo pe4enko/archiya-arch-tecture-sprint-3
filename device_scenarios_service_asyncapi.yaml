@@ -1,0 +1,89 @@
+asyncapi: 2.0.0
+info:
+  title: Smart Home Device Telemetry and Command API111
+  version: 1.0.0
+  description: API для обмена данными телеметрии и командами с использованием MQTT.
+
+servers:
+  mqttBroker:
+    url: mqtt://mqtt.smart-home.com:1883
+    protocol: mqtt
+
+channels:
+  device/{device_id}/telemetry:
+    description: Канал для получения данных телеметрии от устройств.
+    parameters:
+      device_id:
+        description: Уникальный идентификатор устройства
+        schema:
+          type: string
+          format: uuid
+    subscribe:
+      summary: Получение телеметрии от устройства
+      description: Подписывается на данные телеметрии, которые отправляются устройством.
+      message:
+        oneOf:
+          - contentType: application/json
+            payload:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                  format: uuid
+                  description: Уникальный идентификатор устройства
+                temperature:
+                  type: number
+                  description: Текущая температура, измеренная устройством
+                humidity:
+                  type: number
+                  description: Текущая влажность, измеренная устройством
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: Время измерения
+          - contentType: application/json
+            payload:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                  format: uuid
+                  description: Уникальный идентификатор устройства
+                motionDetected:
+                  type: boolean
+                  description: Флаг, указывающий, обнаружено ли движение
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: Время события
+
+  device/{device_id}/commands:
+    description: Канал для отправки команд устройствам.
+    parameters:
+      device_id:
+        description: Уникальный идентификатор устройства
+        schema:
+          type: string
+          format: uuid
+    publish:
+      summary: Отправка команды устройству
+      description: Отправляет команду устройству, например, изменить режим работы.
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            deviceId:
+              type: string
+              format: uuid
+              description: Уникальный идентификатор устройства
+            command:
+              type: string
+              description: Команда, которую необходимо выполнить (например, "SET_TEMPERATURE")
+            value:
+              type: number
+              description: Значение, связанное с командой (например, "22" для температуры)
+            timestamp:
+              type: string
+              format: date-time
+              description: Время отправки команды
