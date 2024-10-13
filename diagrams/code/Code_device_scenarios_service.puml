@@ -34,7 +34,6 @@ class Scenario {
     -id: UUID
     -name: String
     -actions: List<Action>
-    -schedule: Schedule
 }
 
 class Action {
@@ -46,6 +45,8 @@ class Action {
 class Schedule {
     -id: UUID
     -cronExpression: String
+    -scenario: Scenario
+    -action: Action
 }
 
 class DeviceScenariosDatabase {
@@ -54,7 +55,6 @@ class DeviceScenariosDatabase {
     +getScenarios(): List<Scenario>
 }
 
-'Gateway --> DeviceScenariosController : Управляет
 DeviceScenariosController --> DeviceScenariosScheduler : Уведомление об изменениях в расписаниях
 DeviceScenariosController --> DeviceScenariosManager : Уведомление об изменении в сценариях
 DeviceScenariosController --> DeviceScenariosDatabase : Создание/редактирование сценариев
@@ -63,8 +63,9 @@ DeviceScenariosManager --> DeviceScenariosDatabase : Получение сцен
 DeviceScenariosScheduler --> MQTTBroker : отправка команд
 DeviceScenariosManager --> MQTTBroker : отправка команд
 MQTTBroker --> DeviceScenariosManager : отправляет статус устройства
-Scenario "1" *-- "many" Action : has
+Scenario "1" --* "many" Action : has
 Scenario "1" *-- "1" Schedule : has
+Action "1" *-- "1" Schedule : has
 DeviceScenariosScheduler --> Scenario : планирует выполнение
 DeviceScenariosManager --> Scenario : выполняет
 

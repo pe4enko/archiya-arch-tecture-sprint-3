@@ -21,3 +21,5 @@ ER-диаграмма
 [EntityRelation.puml](diagrams/er/EntityRelation.puml)
 
 ## Подзадание 1.4: Создание и документирование API
+API сервиса сценариев
+[device_scenarios_service_openapi.yaml](device_scenarios_service_openapi.yaml)

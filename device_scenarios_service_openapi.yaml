@@ -1,0 +1,308 @@
+openapi: 3.0.0
+info:
+  title: Умный дом - Сервис сценариев API
+  description: API для управления устройствами умного дома
+  version: 1.0.0
+
+servers:
+  - url: https://api.smart-home.com/v1
+
+paths:
+  /scenarios/{scenario_id}:
+    get:
+      summary: Получить информацию о сценарии
+      description: Возвращает информацию о конкретном сценарии по его ID.
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          description: Уникальный идентификатор сценария
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешный ответ с информацией о сценарии
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '404':
+          description: Сценарий не найден
+        '500':
+          description: Внутренняя ошибка сервера
+  /scenarios:
+    post:
+      summary: Создать новый сценарий
+      description: Создает новый сценарий с указанными параметрами.
+      requestBody:
+        description: Параметры нового сценария
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scenario'
+      responses:
+        '201':
+          description: Сценарий успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Внутренняя ошибка сервера
+    put:
+      summary: Обновить сценарий
+      description: Обновляет информацию о существующем сценарии.
+      requestBody:
+        description: Новые параметры сценария
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scenario'
+      responses:
+        '200':
+          description: Сценарий успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Сценарий не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /schedules:
+    post:
+      summary: Создать новое расписание
+      description: Создает новое расписание с указанными параметрами.
+      requestBody:
+        description: Параметры нового расписания
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '201':
+          description: Расписание успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          description: Неверный запрос
+        '500':
+          description: Внутренняя ошибка сервера
+    put:
+      summary: Обновить расписание
+      description: Обновляет информацию о существующем расписании.
+      requestBody:
+        description: Новые параметры расписания
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: Расписание успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Расписание не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+    delete:
+      summary: Удалить расписание
+      description: Удаляет существующее расписание по его ID.
+      parameters:
+        - name: schedule_id
+          in: query
+          required: true
+          description: Уникальный идентификатор расписания
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Расписание успешно удалено
+        '404':
+          description: Расписание не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /devices/{device_id}:
+    get:
+      summary: Get device information
+      description: Возвращает подробную информацию о конкретном устройстве по его ID.
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          description: Уникальный идентификатор устройства
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ с информацией об устройстве
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    type: string
+                  houseId:
+                    type: string
+                  serialNumber:
+                    type: string
+                  lastUpdated:
+                    type: string
+                    format: date-time
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /devices/{device_id}/status:
+    put:
+      summary: Update device status
+      description: Обновляет состояние устройства (например, включает или выключает его).
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          description: Уникальный идентификатор устройства
+          schema:
+            type: string
+      requestBody:
+        description: Новый статус устройства
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [ ON, OFF ]
+      responses:
+        '200':
+          description: Состояние устройства успешно обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /devices/{device_id}/commands:
+    post:
+      summary: Send command to device
+      description: Отправляет команду устройству (например, установить температуру).
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          description: Уникальный идентификатор устройства
+          schema:
+            type: string
+      requestBody:
+        description: Команда, которую нужно выполнить
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                command:
+                  type: string
+                value:
+                  type: number
+      responses:
+        '200':
+          description: Команда успешно отправлена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+                  command:
+                    type: string
+                  value:
+                    type: number
+                  message:
+                    type: string
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    Scenario:
+      type: object
+      properties:
+        scenarioId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        action:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+    Action:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        command:
+          type: string
+    Schedule:
+      type: object
+      properties:
+        scheduleId:
+          type: string
+          format: uuid
+        scenarioId:
+          type: string
+          format: uuid
+        cronExpression:
+          type: string
