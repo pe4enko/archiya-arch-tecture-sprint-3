@@ -1,9 +1,5 @@
 @startuml
-title "Умный дом" диаграмма контекста
-
-top to bottom direction
-
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
 Person(user, "User", "Пользователь системы умного дома")
 System(SmartHome, "SmartHome System", "Система умного дома")

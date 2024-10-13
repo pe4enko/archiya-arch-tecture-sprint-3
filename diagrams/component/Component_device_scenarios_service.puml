@@ -1,0 +1,39 @@
+@startuml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include ../../c4/C4_Component.puml
+
+title Компонентная диаграмма для "Умный дом" - "Сервис сценариев"
+
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
+AddElementTag("broker", $shape=RoundedBoxShape(), $bgColor="DarkBlue", $fontColor="white")
+
+SHOW_PERSON_OUTLINE()
+LAYOUT_TOP_DOWN()
+
+Container(gateway, "Шлюз", "", "Единая точка входа для клиентов системы умного дома. Проверка доступа, маршрутизация запросов")
+Container(mqtt, "MQTT Broker", "EMQX", "IoT обмен сообщений", $tags = "broker")
+ContainerDb(device_scenarios_database, "Postgresql", "PostgreSQL", "Хранит информацию о имеющихся сценариях управления устройствами", $tags = "storage")
+
+Container_Boundary(device_scenarios, "Сервис сценариев") {
+    Component(device_scenarios_controller, "Контроллер сервиса сценариев", "MVC Rest Controller", "Предоставляет возможности создавать и редактировать сценарии")
+    Component(device_scenarios_scheduler, "Планировщик", "Spring Bean", "Предоставляет возможности выполнять сценарии по расписанию")
+    Component(device_scenarios_manager, "Выполнятор сценариев", "Spring Bean", "Реагирует на события из шины сообщений и выполняет сценарии")
+
+    Rel(device_scenarios_controller, device_scenarios_database, "Сохраняет/редактирует сценарии")
+    Rel(device_scenarios_scheduler, device_scenarios_database, "Получает данные об имеющихся сценариях, которые необходимо запланировать к выполнению")
+    Rel(device_scenarios_manager, device_scenarios_database, "Получает данные об имеющихся сценариях")
+
+    Rel(device_scenarios_controller, device_scenarios_scheduler, "Передает события о том что в расписании произошли изменения")
+    Rel(device_scenarios_controller, device_scenarios_manager, "Передает события о том что в сценарии произошли изменения")
+}
+
+
+Rel(device_scenarios_scheduler, mqtt, "Передает команды устройствам согласно расписанию")
+Rel(device_scenarios_manager, mqtt, "Передает команды устройствам согласно имеющимся сценариям")
+Rel(mqtt, device_scenarios_manager, "Передает данные о состоянии устройств")
+
+
+'Поток от шлюза к сервису управления устройствами
+Rel(gateway, device_scenarios_controller, "Управляет устройствами. Расписанием. Сценариями.")
+
+@enduml

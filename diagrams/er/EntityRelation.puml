@@ -1,0 +1,79 @@
+@startuml
+title ER-диаграмма для "Умный дом"
+
+entity "User" as user {
+    * id: UUID
+    --
+    * username: String
+    * password_hash: String
+    * email: String
+}
+
+entity "House" as house {
+    * id: UUID
+    --
+    * address: String
+    * owner_id: UUID <<FK>> -- Связь с User
+}
+
+entity "Device" as device {
+    * id: UUID
+    --
+    * type_id: UUID <<FK>> -- Связь с DeviceType
+    * house_id: UUID <<FK>> -- Связь с House
+    * serial_number: String
+    * status: String -- состояние (включено/выключено)
+}
+
+entity "DeviceType" as device_type {
+    * id: UUID
+    --
+    * name: String
+    * description: String
+}
+
+entity "TelemetryData" as telemetry_data {
+    * id: UUID
+    --
+    * device_id: UUID <<FK>> -- Связь с Device
+    * timestamp: DateTime
+    * temperature: Double
+    * humidity: Double
+    * power_consumption: Double
+}
+
+entity "Schedule" as schedule {
+    * id: UUID
+    --
+    * name: String
+    * cron: String -- cron-выражение
+    * scenario_id: UUID <<FK>> -- Связь с сценарием
+    * action_id: UUID <<FK>> -- Связь с action
+}
+
+entity "Scenario" as scenario {
+    * id: UUID
+    --
+    * name: String
+    * house_id: UUID <<FK>> -- Связь с House
+}
+
+entity "Action" as action {
+    * id: UUID
+    --
+    * scenario_id: UUID <<FK>> -- Связь с Scenario
+    * device_id: UUID <<FK>> -- Связь с Device
+    * command: String
+}
+
+user ||--o{ house : "owns"
+house ||--o{ device : "has"
+device_type ||--o{ device : "of type"
+device ||--o{ telemetry_data : "генерирует"
+house ||--o{ scenario : "has"
+scenario ||--o{ action : "содержит"
+action ||--|| device : "управляет"
+schedule ||--|| scenario : "ссылается на"
+schedule ||--|| action : "ссылается на"
+
+@enduml

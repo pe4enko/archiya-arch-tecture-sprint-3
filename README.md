@@ -1,74 +1,23 @@
-# Базовая настройка
+# Задание 1: Анализ и проектирование
 
-## Запуск minikube
+## Подзадание 1.1: Анализ и планирование
+C4 — Уровень контекста (Context) AS-IS
+[Context_monolith.puml](diagrams/context/Context_monolith.puml)
 
-[Инструкция по установке](https://minikube.sigs.k8s.io/docs/start/)
+## Подзадание 1.2: Архитектура микросервисов
 
-```bash
-minikube start
-```
+C4 — Уровень контейнеров (Containers)
+[Container.puml](diagrams/container/Container.puml)
 
+C4 — Уровень компонентов (Components) - "Сервис сценариев"
+[Component_device_scenarios_service.puml](diagrams/component/Component_device_scenarios_service.puml)
 
-## Добавление токена авторизации GitHub
-
-[Получение токена](https://github.com/settings/tokens/new)
-
-```bash
-kubectl create secret docker-registry ghcr --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_token> -n default
-```
+C4 — Уровень кода (Code) - "Сервис сценариев"
+[Code_device_scenarios_service.puml](diagrams/code/Code_device_scenarios_service.puml)
 
 
-## Установка API GW kusk
+## Подзадание 1.3: ER-диаграмма
+ER-диаграмма
+[EntityRelation.puml](diagrams/er/EntityRelation.puml)
 
-[Install Kusk CLI](https://docs.kusk.io/getting-started/install-kusk-cli)
-
-```bash
-kusk cluster install
-```
-
-
-## Настройка terraform
-
-[Установите Terraform](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
-
-
-Создайте файл ~/.terraformrc
-
-```hcl
-provider_installation {
-  network_mirror {
-    url = "https://terraform-mirror.yandexcloud.net/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
-}
-```
-
-## Применяем terraform конфигурацию 
-
-```bash
-cd terraform
-terraform apply
-```
-
-## Настройка API GW
-
-```bash
-kusk deploy -i api.yaml
-```
-
-## Проверяем работоспособность
-
-```bash
-kubectl port-forward svc/kusk-gateway-envoy-fleet -n kusk-system 8080:80
-curl localhost:8080/hello
-```
-
-
-## Delete minikube
-
-```bash
-minikube delete
-```
+## Подзадание 1.4: Создание и документирование API

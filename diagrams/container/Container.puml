@@ -1,0 +1,84 @@
+@startuml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include ../../c4/C4_Container.puml
+
+title "Умный дом" диаграмма контейнеров
+
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
+AddElementTag("broker", $shape=RoundedBoxShape(), $bgColor="DarkBlue", $fontColor="white")
+
+SHOW_PERSON_OUTLINE()
+LAYOUT_TOP_DOWN()
+'top to bottom direction
+
+Person(user, "User", "Пользователь системы умного дома")
+'System(SmartHome, "SmartHome System", "Система умного дома")
+
+System_Boundary(SmartHome, "Система умного дома") {
+    Container(web_app, "Веб приложение", "Java, Spring MVC", "Доступ пользователями к системе умного дома через браузер")
+    Container(mobile_app, "Мобильное приложение", "", "Доступ пользователями к системе умного дома через мобильное устройство")
+
+    Container(gateway, "Шлюз", "", "Единая точка входа для клиентов системы умного дома. Проверка доступа, маршрутизация запросов")
+
+    Container(user_service, "Сервис пользователей", "", "Предоставляет возможности управления пользователями")
+    ContainerDb(user_service_database, "Postgresql", "PostgreSQL", "Хранит информацию о регистрации пользователей, хешированные учетные данные для аутентификации", $tags = "storage")
+
+    Container(device_service, "Сервис управления устройствами", "", "Предоставляет возможности управления устройствами")
+
+    Container(device_scenarios, "Сервис сценариев", "", "Предоставляет возможности создавать сценарии работы устройств, а так же их выполнение")
+    ContainerDb(device_scenarios_database, "Postgresql", "PostgreSQL", "Хранит информацию о имеющихся сценариях управления устройствами", $tags = "storage")
+
+    Container(telemetry, "Сервис телеметрии", "", "Предоставляет возможности отслеживать состояние устройств")
+    ContainerDb(tsdb, "VictoriaMetrics", Victoria Metrics, "Хранит данные об изменении состояния устройств", $tags = "storage")
+
+    Container(mqtt, "MQTT Broker", "EMQX", "IoT обмен сообщений", $tags = "broker")
+}
+
+
+System_Ext(heater, "Обогреватель", "Устройство для обогрева помещения")
+System_Ext(heat_sensor, "Датчик тепла", "Устройство для измерения температуры")
+System_Ext(devices, "Другие устройства", "IoT устройства")
+System_Ext(notification, "Сервис уведомлений", Осуществляет нотификацию пользователей)
+
+'Поток от пользователя к приложению
+Rel(user, web_app, "Управляет устройствами")
+Rel(user, mobile_app, "Управляет устройствами")
+
+'Поток от приложения к пользователю
+Rel(web_app, user, "Отправляет данные о состоянии устройств")
+Rel(mobile_app, user, "Отправляет данные о состоянии устройств")
+
+'Поток от точек входа пользователя к шлюзу
+Rel(web_app, gateway, "Управляет устройствами")
+Rel(mobile_app, gateway, "Управляет устройствами")
+
+'MQTT взаимодействие
+Rel_D(mqtt, heater, "Получает команды на включение/выключение, установку температуры")
+Rel_D(mqtt, heat_sensor, "Получает команды на включение/выключение")
+Rel_U(heat_sensor, mqtt, "Отправляет данные о температуре")
+Rel_U(devices, mqtt, "Данные устройства")
+Rel_D(mqtt, devices, "Команды для устройства")
+
+'Поток от шлюза к сервису управления устройствами
+Rel(gateway, device_service, "Управляет устройствами")
+Rel(gateway, device_scenarios, "Настройка сценариев")
+Rel(gateway, user_service, "Управляет пользователями")
+Rel(gateway, telemetry, "Получение телеметрии")
+
+'Взаимодействие с БД
+'Rel(device_service, device_scenarios_database, "Сохраняет данные в")
+Rel(device_scenarios, device_scenarios_database, "Сохраняет данные в")
+Rel(user_service, user_service_database, "Сохраняет данные в")
+Rel(telemetry, tsdb, "Сохраняет данные в")
+
+'Поток от сервиса управления устройствами к mqtt
+Rel(device_service, mqtt, "Публикует данные о состоянии устройств")
+
+Rel(device_scenarios, mqtt, "Отправляет команды на управление устройствами в соответствии с сценариями")
+Rel(mqtt, device_scenarios, "Подписывается на события от устройств")
+
+Rel(telemetry, mqtt, "Отслеживает состояние устройств, сохраняет данные в БД")
+Rel(mqtt, telemetry, "Подписывается на события от устройств")
+
+Rel(device_scenarios, notification, "Отправка уведомлений пользователю, согласно сценариям")
+@enduml
