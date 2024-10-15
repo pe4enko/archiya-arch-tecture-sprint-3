@@ -4,6 +4,9 @@
 C4 — Уровень контекста (Context) AS-IS
 [Context_monolith.puml](diagrams/context/Context_monolith.puml)
 
+DDD диаграмма
+[ddd.puml](diagrams/ddd/ddd.puml)
+
 ## Подзадание 1.2: Архитектура микросервисов
 
 C4 — Уровень контейнеров (Containers)
